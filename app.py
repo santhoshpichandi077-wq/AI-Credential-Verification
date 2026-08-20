@@ -27,7 +27,10 @@ from io import BytesIO
 
 app = Flask(__name__)
 
-app.secret_key = "AI_DIGITAL_CREDENTIAL_SECRET_2026"
+app.secret_key = os.environ.get(
+    "SECRET_KEY",
+    "AI_DIGITAL_CREDENTIAL_SECRET_2026"
+)
 
 BASE_DIR = app.root_path
 
@@ -42,8 +45,15 @@ QR_FOLDER = os.path.join(
     "qr_codes"
 )
 
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(QR_FOLDER, exist_ok=True)
+os.makedirs(
+    UPLOAD_FOLDER,
+    exist_ok=True
+)
+
+os.makedirs(
+    QR_FOLDER,
+    exist_ok=True
+)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
@@ -52,12 +62,16 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 # TESSERACT CONFIG
 # =========================================================
 
-TESSERACT_PATH = os.environ.get(
-    "TESSERACT_CMD",
-    "tesseract"
+# Local Windows Tesseract
+WINDOWS_TESSERACT_PATH = (
+    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 )
 
-pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
+if os.path.exists(WINDOWS_TESSERACT_PATH):
+
+    pytesseract.pytesseract.tesseract_cmd = (
+        WINDOWS_TESSERACT_PATH
+    )
 
 
 # =========================================================
@@ -82,16 +96,18 @@ def allowed_file(filename):
 
 
 # =========================================================
-# DATABASE CONNECTION
+# DATABASE
 # =========================================================
 
 def get_db():
 
+    database_path = os.path.join(
+        BASE_DIR,
+        "database.db"
+    )
+
     conn = sqlite3.connect(
-        os.path.join(
-            BASE_DIR,
-            "database.db"
-        )
+        database_path
     )
 
     conn.row_factory = sqlite3.Row
@@ -107,9 +123,9 @@ def create_database():
 
     conn = get_db()
 
-    # =====================================================
+    # -----------------------------------------------------
     # USERS
-    # =====================================================
+    # -----------------------------------------------------
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS users (
@@ -130,44 +146,18 @@ def create_database():
 
             organization TEXT NOT NULL,
 
-            issue_date TEXT NOT NULL
+            issue_date TEXT NOT NULL,
+
+            certificate_file TEXT,
+
+            validation_code TEXT
 
         )
     """)
 
-    # =====================================================
-    # CERTIFICATE FILE
-    # =====================================================
-
-    try:
-
-        conn.execute("""
-            ALTER TABLE users
-            ADD COLUMN certificate_file TEXT
-        """)
-
-    except sqlite3.OperationalError:
-
-        pass
-
-    # =====================================================
-    # VALIDATION CODE
-    # =====================================================
-
-    try:
-
-        conn.execute("""
-            ALTER TABLE users
-            ADD COLUMN validation_code TEXT
-        """)
-
-    except sqlite3.OperationalError:
-
-        pass
-
-    # =====================================================
+    # -----------------------------------------------------
     # CERTIFICATE UPLOADS
-    # =====================================================
+    # -----------------------------------------------------
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS certificate_uploads (
@@ -185,9 +175,9 @@ def create_database():
         )
     """)
 
-    # =====================================================
+    # -----------------------------------------------------
     # VERIFICATION HISTORY
-    # =====================================================
+    # -----------------------------------------------------
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS verification_history (
@@ -205,9 +195,9 @@ def create_database():
         )
     """)
 
-    # =====================================================
+    # -----------------------------------------------------
     # ADMINS
-    # =====================================================
+    # -----------------------------------------------------
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS admins (
@@ -221,9 +211,9 @@ def create_database():
         )
     """)
 
-    # =====================================================
+    # -----------------------------------------------------
     # DEFAULT ADMIN
-    # =====================================================
+    # -----------------------------------------------------
 
     admin = conn.execute(
         """
@@ -256,22 +246,42 @@ def create_database():
     conn.close()
 
 
+# =========================================================
+# QR CODE
+# =========================================================
+
 def generate_qr(credential_id):
 
+    # Render environment variable available என்றால்
+    # அதை use பண்ணும்.
+    #
+    # இல்லையென்றால் localhost use ஆகும்.
+
+    base_url = os.environ.get(
+        "BASE_URL",
+        "http://127.0.0.1:5000"
+    ).rstrip("/")
+
     verification_url = (
-        f"https://ai-credential-verification.onrender.com/verify/{credential_id}"
+        f"{base_url}/verify/{credential_id}"
     )
 
-    qr = qrcode.make(verification_url)
+    qr = qrcode.make(
+        verification_url
+    )
 
     qr_path = os.path.join(
         QR_FOLDER,
         f"{credential_id}.png"
     )
 
-    qr.save(qr_path)
+    qr.save(
+        qr_path
+    )
 
     return qr_path
+
+
 # =========================================================
 # HOME
 # =========================================================
@@ -296,11 +306,20 @@ def register():
 
     if request.method == "POST":
 
-        name = request.form.get("name")
+        name = request.form.get(
+            "name",
+            ""
+        ).strip()
 
-        email = request.form.get("email")
+        email = request.form.get(
+            "email",
+            ""
+        ).strip()
 
-        password = request.form.get("password")
+        password = request.form.get(
+            "password",
+            ""
+        )
 
         certificate_type = request.form.get(
             "certificate_type",
@@ -317,7 +336,9 @@ def register():
             "ABC Institute"
         )
 
-        issue_date = request.form.get("issue_date")
+        issue_date = request.form.get(
+            "issue_date"
+        )
 
         if not issue_date:
 
@@ -394,9 +415,15 @@ def register():
 )
 def login():
 
-    email = request.form.get("email")
+    email = request.form.get(
+        "email",
+        ""
+    ).strip()
 
-    password = request.form.get("password")
+    password = request.form.get(
+        "password",
+        ""
+    )
 
     conn = get_db()
 
@@ -495,13 +522,10 @@ def dashboard():
 
     return render_template(
         "dashboard.html",
-
         user=dict(user),
-
         history=dict(history)
         if history
         else None,
-
         upload_count=upload_count
     )
 
@@ -546,11 +570,8 @@ def certificate():
 
     return render_template(
         "certificate.html",
-
         user=dict(user),
-
         qr_code=f"{user['credential_id']}.png",
-
         qr_path=qr_path
     )
 
@@ -594,9 +615,7 @@ def download_certificate():
     try:
 
         from reportlab.pdfgen import canvas
-
         from reportlab.lib.pagesizes import A4
-
         from reportlab.lib.units import mm
 
     except ImportError:
@@ -924,11 +943,8 @@ def verify(credential_id):
         """,
         (
             credential_id,
-
             status,
-
             "QR",
-
             datetime.now().strftime(
                 "%Y-%m-%d %H:%M:%S"
             )
@@ -941,13 +957,10 @@ def verify(credential_id):
 
     return render_template(
         "verify.html",
-
         user=dict(user)
         if user
         else None,
-
         verified=bool(user),
-
         credential_id=credential_id
     )
 
@@ -972,10 +985,6 @@ def clean_ocr_text(text):
 
 def extract_validation_code(text):
 
-    # -----------------------------------------------------
-    # First: look around VALIDATION CODE
-    # -----------------------------------------------------
-
     validation_area_patterns = [
 
         r"VALIDATION\s*CODE\s*[:\-]?\s*([A-Za-z0-9]{20,64})",
@@ -998,10 +1007,6 @@ def extract_validation_code(text):
 
             return match.group(1)
 
-    # -----------------------------------------------------
-    # Second: find 32-character hexadecimal code
-    # -----------------------------------------------------
-
     matches = re.findall(
         r"\b[A-Fa-f0-9]{32}\b",
         text
@@ -1010,10 +1015,6 @@ def extract_validation_code(text):
     if matches:
 
         return matches[0]
-
-    # -----------------------------------------------------
-    # Third: generic 32 character code
-    # -----------------------------------------------------
 
     matches = re.findall(
         r"\b[A-Za-z0-9]{32}\b",
@@ -1053,7 +1054,13 @@ def extract_credential_id(text):
 
         if match:
 
-            value = match.group(1) if match.lastindex else match.group(0)
+            if match.lastindex:
+
+                value = match.group(1)
+
+            else:
+
+                value = match.group(0)
 
             value = value.upper()
 
@@ -1065,6 +1072,98 @@ def extract_credential_id(text):
             return value
 
     return None
+
+
+# =========================================================
+# OCR IMAGE
+# =========================================================
+
+def perform_image_ocr(filepath):
+
+    try:
+
+        image = Image.open(
+            filepath
+        ).convert("RGB")
+
+        # -------------------------------------------------
+        # OCR ATTEMPT 1
+        # -------------------------------------------------
+
+        text = pytesseract.image_to_string(
+            image,
+            config="--psm 6"
+        )
+
+        # -------------------------------------------------
+        # OCR ATTEMPT 2
+        # -------------------------------------------------
+
+        if not text.strip():
+
+            enhanced = ImageEnhance.Contrast(
+                image
+            ).enhance(2.0)
+
+            enhanced = enhanced.filter(
+                ImageFilter.SHARPEN
+            )
+
+            text = pytesseract.image_to_string(
+                enhanced,
+                config="--psm 6"
+            )
+
+        return clean_ocr_text(
+            text
+        )
+
+    except Exception as e:
+
+        return (
+            "OCR ERROR: "
+            +
+            str(e)
+        )
+
+
+# =========================================================
+# PDF TEXT EXTRACTION
+# =========================================================
+
+def perform_pdf_extraction(filepath):
+
+    try:
+
+        import fitz
+
+        extracted_text = ""
+
+        pdf_document = fitz.open(
+            filepath
+        )
+
+        for page in pdf_document:
+
+            extracted_text += (
+                page.get_text()
+                +
+                "\n"
+            )
+
+        pdf_document.close()
+
+        return clean_ocr_text(
+            extracted_text
+        )
+
+    except Exception as e:
+
+        return (
+            "PDF TEXT ERROR: "
+            +
+            str(e)
+        )
 
 
 # =========================================================
@@ -1083,9 +1182,9 @@ def ai_verify():
             "ai_verify.html"
         )
 
-    # =====================================================
+    # -----------------------------------------------------
     # FILE CHECK
-    # =====================================================
+    # -----------------------------------------------------
 
     if "certificate" not in request.files:
 
@@ -1115,9 +1214,9 @@ def ai_verify():
         </a>
         """
 
-    # =====================================================
+    # -----------------------------------------------------
     # UNIQUE FILE
-    # =====================================================
+    # -----------------------------------------------------
 
     unique_name = (
         datetime.now().strftime(
@@ -1138,11 +1237,13 @@ def ai_verify():
         unique_name
     )
 
-    file.save(filepath)
+    file.save(
+        filepath
+    )
 
-    # =====================================================
+    # -----------------------------------------------------
     # OCR
-    # =====================================================
+    # -----------------------------------------------------
 
     extension = filename.rsplit(
         ".",
@@ -1151,127 +1252,49 @@ def ai_verify():
 
     extracted_text = ""
 
-    # =====================================================
-    # IMAGE OCR
-    # =====================================================
-
     if extension in [
         "png",
         "jpg",
         "jpeg"
     ]:
 
-        try:
-
-            if os.path.exists(TESSERACT_PATH):
-
-                pytesseract.pytesseract.tesseract_cmd = (
-                    TESSERACT_PATH
-                )
-
-            image = Image.open(
-                filepath
-            ).convert("RGB")
-
-            # ------------------------------------------------
-            # OCR attempt 1 - normal image
-            # ------------------------------------------------
-
-            extracted_text = pytesseract.image_to_string(
-                image,
-                config="--psm 6"
-            )
-
-            # ------------------------------------------------
-            # OCR attempt 2 - enhanced image
-            # ------------------------------------------------
-
-            if not extracted_text.strip():
-
-                enhanced = ImageEnhance.Contrast(
-                    image
-                ).enhance(2.0)
-
-                enhanced = enhanced.filter(
-                    ImageFilter.SHARPEN
-                )
-
-                extracted_text = pytesseract.image_to_string(
-                    enhanced,
-                    config="--psm 6"
-                )
-
-        except Exception as e:
-
-            extracted_text = (
-                "OCR ERROR: "
-                +
-                str(e)
-            )
-
-    # =====================================================
-    # PDF TEXT
-    # =====================================================
+        extracted_text = perform_image_ocr(
+            filepath
+        )
 
     elif extension == "pdf":
 
-        try:
+        extracted_text = perform_pdf_extraction(
+            filepath
+        )
 
-            import fitz
+    # -----------------------------------------------------
+    # PRINT OCR RESULT
+    # -----------------------------------------------------
 
-            pdf_document = fitz.open(
-                filepath
-            )
-
-            for page in pdf_document:
-
-                extracted_text += (
-                    page.get_text()
-                    +
-                    "\n"
-                )
-
-            pdf_document.close()
-
-        except Exception as e:
-
-            extracted_text = (
-                "PDF TEXT ERROR: "
-                +
-                str(e)
-            )
-
-    # =====================================================
-    # PRINT OCR
-    # =====================================================
-
-    print("\n")
+    print("")
     print("========== OCR RESULT ==========")
     print(extracted_text)
     print("================================")
-    print("\n")
+    print("")
 
-    # =====================================================
-    # EXTRACT CREDENTIAL ID
-    # =====================================================
+    # -----------------------------------------------------
+    # DETECT CREDENTIAL
+    # -----------------------------------------------------
 
     credential_id = extract_credential_id(
         extracted_text
     )
 
-    # =====================================================
-    # EXTRACT VALIDATION CODE
-    # =====================================================
+    # -----------------------------------------------------
+    # DETECT VALIDATION CODE
+    # -----------------------------------------------------
 
     validation_code = extract_validation_code(
         extracted_text
     )
 
-    # =====================================================
-    # PRINT DETECTION
-    # =====================================================
-
-    print("\n")
+    print("")
     print("========== DETECTION ==========")
     print(
         "Credential ID :",
@@ -1282,19 +1305,15 @@ def ai_verify():
         validation_code
     )
     print("===============================")
-    print("\n")
+    print("")
 
-    # =====================================================
+    # -----------------------------------------------------
     # DATABASE SEARCH
-    # =====================================================
+    # -----------------------------------------------------
 
     conn = get_db()
 
     user = None
-
-    # -----------------------------------------------------
-    # Search by Credential ID
-    # -----------------------------------------------------
 
     if credential_id:
 
@@ -1308,10 +1327,6 @@ def ai_verify():
                 credential_id,
             )
         ).fetchone()
-
-    # -----------------------------------------------------
-    # Search by Validation Code
-    # -----------------------------------------------------
 
     if validation_code and not user:
 
@@ -1332,22 +1347,20 @@ def ai_verify():
 
             user = None
 
-    # =====================================================
+    # -----------------------------------------------------
     # VERIFIED
-    # =====================================================
+    # -----------------------------------------------------
 
     if user:
 
-        actual_credential_id = user["credential_id"]
+        actual_credential_id = (
+            user["credential_id"]
+        )
 
         relative_path = os.path.join(
             "uploads",
             unique_name
         )
-
-        # -------------------------------------------------
-        # Save certificate upload
-        # -------------------------------------------------
 
         conn.execute(
             """
@@ -1362,20 +1375,13 @@ def ai_verify():
             """,
             (
                 actual_credential_id,
-
                 filename,
-
                 relative_path,
-
                 datetime.now().strftime(
                     "%Y-%m-%d %H:%M:%S"
                 )
             )
         )
-
-        # -------------------------------------------------
-        # Update latest certificate
-        # -------------------------------------------------
 
         conn.execute(
             """
@@ -1385,14 +1391,9 @@ def ai_verify():
             """,
             (
                 relative_path,
-
                 actual_credential_id
             )
         )
-
-        # -------------------------------------------------
-        # History
-        # -------------------------------------------------
 
         conn.execute(
             """
@@ -1407,11 +1408,8 @@ def ai_verify():
             """,
             (
                 actual_credential_id,
-
                 "VERIFIED",
-
                 "AI + OCR",
-
                 datetime.now().strftime(
                     "%Y-%m-%d %H:%M:%S"
                 )
@@ -1424,15 +1422,13 @@ def ai_verify():
 
         return render_template(
             "ai_verified.html",
-
             user=dict(user),
-
             extracted_text=extracted_text
         )
 
-    # =====================================================
+    # -----------------------------------------------------
     # INVALID
-    # =====================================================
+    # -----------------------------------------------------
 
     if credential_id:
 
@@ -1449,11 +1445,8 @@ def ai_verify():
             """,
             (
                 credential_id,
-
                 "INVALID",
-
                 "AI + OCR",
-
                 datetime.now().strftime(
                     "%Y-%m-%d %H:%M:%S"
                 )
@@ -1472,9 +1465,7 @@ def ai_verify():
 
     return render_template(
         "ai_result.html",
-
         extracted_text=extracted_text,
-
         credential_id=detected_value
     )
 
@@ -1531,9 +1522,7 @@ def verification_history():
 
     return render_template(
         "verification_history.html",
-
         user=dict(user),
-
         history=[
             dict(row)
             for row in history
@@ -1554,11 +1543,13 @@ def admin_login():
     if request.method == "POST":
 
         username = request.form.get(
-            "username"
-        )
+            "username",
+            ""
+        ).strip()
 
         password = request.form.get(
-            "password"
+            "password",
+            ""
         )
 
         conn = get_db()
@@ -1594,7 +1585,6 @@ def admin_login():
 
         return render_template(
             "admin_login.html",
-
             error=(
                 "Invalid admin username "
                 "or password."
@@ -1665,15 +1655,10 @@ def admin_dashboard():
 
     return render_template(
         "admin_dashboard.html",
-
         total_users=total_users,
-
         total_credentials=total_credentials,
-
         total_verified=total_verified,
-
         total_invalid=total_invalid,
-
         total_uploaded=total_uploaded
     )
 
@@ -1707,7 +1692,6 @@ def admin_credentials():
 
     return render_template(
         "admin_credentials.html",
-
         users=[
             dict(row)
             for row in users
@@ -1744,7 +1728,6 @@ def admin_certificates():
 
     return render_template(
         "admin_certificates.html",
-
         certificates=[
             dict(row)
             for row in certificates
@@ -1776,12 +1759,9 @@ def admin_uploads():
             users.name,
             users.email
         FROM certificate_uploads
-
         LEFT JOIN users
-
         ON certificate_uploads.credential_id
         = users.credential_id
-
         ORDER BY certificate_uploads.id DESC
         """
     ).fetchall()
@@ -1790,7 +1770,6 @@ def admin_uploads():
 
     return render_template(
         "admin_uploads.html",
-
         uploads=[
             dict(row)
             for row in uploads
@@ -1827,7 +1806,6 @@ def admin_history():
 
     return render_template(
         "admin_history.html",
-
         history=[
             dict(row)
             for row in history
@@ -1861,22 +1839,23 @@ def admin_register_certificate():
         """
     ).fetchall()
 
+    users_list = [
+        dict(row)
+        for row in users
+    ]
+
     if request.method == "GET":
 
         conn.close()
 
         return render_template(
             "admin_register_certificate.html",
-
-            users=[
-                dict(row)
-                for row in users
-            ]
+            users=users_list
         )
 
-    # =====================================================
-    # GET FORM DATA
-    # =====================================================
+    # -----------------------------------------------------
+    # FORM DATA
+    # -----------------------------------------------------
 
     student_id = request.form.get(
         "student_id"
@@ -1892,12 +1871,7 @@ def admin_register_certificate():
 
         return render_template(
             "admin_register_certificate.html",
-
-            users=[
-                dict(row)
-                for row in users
-            ],
-
+            users=users_list,
             error="Please select a student."
         )
 
@@ -1907,12 +1881,7 @@ def admin_register_certificate():
 
         return render_template(
             "admin_register_certificate.html",
-
-            users=[
-                dict(row)
-                for row in users
-            ],
-
+            users=users_list,
             error="Please select the original certificate."
         )
 
@@ -1926,18 +1895,15 @@ def admin_register_certificate():
 
         return render_template(
             "admin_register_certificate.html",
-
-            users=[
-                dict(row)
-                for row in users
-            ],
-
-            error="Only PDF, PNG, JPG and JPEG files are allowed."
+            users=users_list,
+            error=(
+                "Only PDF, PNG, JPG and JPEG files are allowed."
+            )
         )
 
-    # =====================================================
-    # STUDENT
-    # =====================================================
+    # -----------------------------------------------------
+    # FIND STUDENT
+    # -----------------------------------------------------
 
     user = conn.execute(
         """
@@ -1956,18 +1922,13 @@ def admin_register_certificate():
 
         return render_template(
             "admin_register_certificate.html",
-
-            users=[
-                dict(row)
-                for row in users
-            ],
-
+            users=users_list,
             error="Student not found."
         )
 
-    # =====================================================
+    # -----------------------------------------------------
     # SAVE FILE
-    # =====================================================
+    # -----------------------------------------------------
 
     unique_name = (
         "ORIGINAL_"
@@ -1990,11 +1951,13 @@ def admin_register_certificate():
         unique_name
     )
 
-    file.save(filepath)
+    file.save(
+        filepath
+    )
 
-    # =====================================================
+    # -----------------------------------------------------
     # OCR
-    # =====================================================
+    # -----------------------------------------------------
 
     extracted_text = ""
 
@@ -2009,100 +1972,46 @@ def admin_register_certificate():
         "jpeg"
     ]:
 
-        try:
-
-            if os.path.exists(TESSERACT_PATH):
-
-                pytesseract.pytesseract.tesseract_cmd = (
-                    TESSERACT_PATH
-                )
-
-            image = Image.open(
-                filepath
-            ).convert("RGB")
-
-            extracted_text = pytesseract.image_to_string(
-                image,
-                config="--psm 6"
-            )
-
-        except Exception as e:
-
-            extracted_text = (
-                "OCR ERROR: "
-                +
-                str(e)
-            )
+        extracted_text = perform_image_ocr(
+            filepath
+        )
 
     elif extension == "pdf":
 
-        try:
+        extracted_text = perform_pdf_extraction(
+            filepath
+        )
 
-            import fitz
-
-            pdf_document = fitz.open(
-                filepath
-            )
-
-            for page in pdf_document:
-
-                extracted_text += (
-                    page.get_text()
-                    +
-                    "\n"
-                )
-
-            pdf_document.close()
-
-        except Exception as e:
-
-            extracted_text = (
-                "PDF TEXT ERROR: "
-                +
-                str(e)
-            )
-
-    # =====================================================
-    # EXTRACT VALIDATION CODE
-    # =====================================================
+    # -----------------------------------------------------
+    # EXTRACT CODES
+    # -----------------------------------------------------
 
     validation_code = extract_validation_code(
         extracted_text
     )
 
-    # =====================================================
-    # EXTRACT CREDENTIAL ID
-    # =====================================================
-
     detected_credential_id = extract_credential_id(
         extracted_text
     )
 
-    # =====================================================
-    # DEBUG
-    # =====================================================
-
-    print("\n")
+    print("")
     print("========== ADMIN OCR ==========")
     print(extracted_text)
     print("===============================")
-
     print(
         "Validation Code :",
         validation_code
     )
-
     print(
         "Credential ID :",
         detected_credential_id
     )
-
     print("===============================")
-    print("\n")
+    print("")
 
-    # =====================================================
-    # IF VALIDATION CODE NOT DETECTED
-    # =====================================================
+    # -----------------------------------------------------
+    # VALIDATION CODE CHECK
+    # -----------------------------------------------------
 
     if not validation_code:
 
@@ -2110,24 +2019,18 @@ def admin_register_certificate():
 
         return render_template(
             "admin_register_certificate.html",
-
-            users=[
-                dict(row)
-                for row in users
-            ],
-
+            users=users_list,
             error=(
                 "Validation code was not detected. "
-                "Make sure Tesseract is installed and "
-                "try the original image."
+                "Make sure the certificate contains "
+                "a readable validation code."
             ),
-
             extracted_text=extracted_text
         )
 
-    # =====================================================
-    # SAVE VALIDATION CODE TO STUDENT
-    # =====================================================
+    # -----------------------------------------------------
+    # SAVE VALIDATION CODE
+    # -----------------------------------------------------
 
     conn.execute(
         """
@@ -2141,9 +2044,9 @@ def admin_register_certificate():
         )
     )
 
-    # =====================================================
+    # -----------------------------------------------------
     # SAVE UPLOAD
-    # =====================================================
+    # -----------------------------------------------------
 
     relative_path = os.path.join(
         "uploads",
@@ -2163,20 +2066,17 @@ def admin_register_certificate():
         """,
         (
             user["credential_id"],
-
             filename,
-
             relative_path,
-
             datetime.now().strftime(
                 "%Y-%m-%d %H:%M:%S"
             )
         )
     )
 
-    # =====================================================
-    # UPDATE USER CERTIFICATE FILE
-    # =====================================================
+    # -----------------------------------------------------
+    # UPDATE USER
+    # -----------------------------------------------------
 
     conn.execute(
         """
@@ -2196,23 +2096,15 @@ def admin_register_certificate():
 
     return render_template(
         "admin_register_certificate.html",
-
-        users=[
-            dict(row)
-            for row in users
-        ],
-
+        users=users_list,
         success=(
             "Original certificate registered successfully."
         ),
-
         detected_validation_code=validation_code,
-
         detected_credential_id=(
             detected_credential_id
             or user["credential_id"]
         ),
-
         extracted_text=extracted_text
     )
 
@@ -2245,7 +2137,9 @@ def admin_logout():
 # STUDENT LOGOUT
 # =========================================================
 
-@app.route("/logout")
+@app.route(
+    "/logout"
+)
 def logout():
 
     session.clear()
@@ -2256,12 +2150,26 @@ def logout():
 
 
 # =========================================================
+# HEALTH CHECK
+# =========================================================
+
+@app.route("/health")
+def health():
+
+    return {
+        "status": "running",
+        "application": "AI Digital Credential Verification System"
+    }
+
+
+# =========================================================
 # START APPLICATION
 # =========================================================
 
-if __name__ == "__main__":
+create_database()
 
-    create_database()
+
+if __name__ == "__main__":
 
     port = int(
         os.environ.get(
