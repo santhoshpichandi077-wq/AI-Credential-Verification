@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AI Digital Credential Verification</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <div class="logo">
+        🤖 AI <span>Digital Credential</span>
+    </div>
+
+    <div>
+        <a href="/">Home</a>
+        <a href="#features">Features</a>
+        <a href="#admin">Admin</a>
+    </div>
+
+</nav>
+
+
+<div class="container">
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="hero">
+
+        <div class="ai-icon">
+            🤖
+        </div>
+
+        <h1>
+            AI Digital Credential
+        </h1>
+
+        <h2>
+            Certificate Verification System
+        </h2>
+
+        <p>
+            Securely manage, verify and authenticate
+            digital certificates using AI-powered
+            credential verification technology.
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         STUDENT LOGIN
+    ====================================================== -->
+
+    <section class="login-section card">
+
+        <div class="card-icon">
+            🎓
+        </div>
+
+        <h2>
+            Student Login
+        </h2>
+
+        <p class="muted-text">
+            Login to access your digital credentials
+            and certificate verification.
+        </p>
+
+
+        <form action="{{ url_for('login') }}"
+              method="POST">
+
+            <label>
+                Email Address
+            </label>
+
+            <input
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                required
+            >
+
+
+            <label>
+                Password
+            </label>
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+            >
+
+
+            <button type="submit"
+                    class="login-btn">
+
+                🔐 Login
+
+            </button>
+
+        </form>
+
+
+        <p class="register-text">
+
+            Don't have an account?
+
+            <a href="{{ url_for('register') }}">
+                Register Now
+            </a>
+
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         ADMIN LOGIN
+    ====================================================== -->
+
+    <section id="admin"
+             class="admin-section admin-login-card">
+
+        <div class="admin-animation">
+
+            <div class="admin-icon">
+                🛡️
+            </div>
+
+            <div class="admin-pulse"></div>
+
+        </div>
+
+
+        <h2>
+            Admin Control Center
+        </h2>
+
+        <p>
+            Authorized administrators can manage
+            credentials, certificates and verification
+            history from the secure dashboard.
+        </p>
+
+
+        <a href="{{ url_for('admin_login') }}"
+           class="admin-login-btn">
+
+            🛡️ Admin Login
+            <span>→</span>
+
+        </a>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         FEATURES
+    ====================================================== -->
+
+    <section id="features"
+             class="features">
+
+        <h2>
+            🚀 System Features
+        </h2>
+
+
+        <div class="feature-grid">
+
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    🤖
+                </div>
+
+                <h3>
+                    AI Verification
+                </h3>
+
+                <p>
+                    Extract certificate information
+                    and verify credentials automatically.
+                </p>
+
+            </div>
+
+
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    📜
+                </div>
+
+                <h3>
+                    Digital Credentials
+                </h3>
+
+                <p>
+                    Generate unique digital credential
+                    IDs for registered certificates.
+                </p>
+
+            </div>
+
+
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    🔳
+                </div>
+
+                <h3>
+                    QR Verification
+                </h3>
+
+                <p>
+                    Scan the QR code to instantly
+                    verify a digital credential.
+                </p>
+
+            </div>
+
+
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    🛡️
+                </div>
+
+                <h3>
+                    Secure Admin
+                </h3>
+
+                <p>
+                    Administrators can monitor credentials,
+                    uploads and verification history.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         SYSTEM FLOW
+    ====================================================== -->
+
+    <section class="card system-flow">
+
+        <h2>
+            ⚡ How It Works
+        </h2>
+
+
+        <div class="flow-grid">
+
+            <div class="flow-item">
+
+                <span>01</span>
+
+                <h3>
+                    Register
+                </h3>
+
+                <p>
+                    Student creates a digital credential.
+                </p>
+
+            </div>
+
+
+            <div class="flow-item">
+
+                <span>02</span>
+
+                <h3>
+                    Generate
+                </h3>
+
+                <p>
+                    System generates a unique Credential ID.
+                </p>
+
+            </div>
+
+
+            <div class="flow-item">
+
+                <span>03</span>
+
+                <h3>
+                    Verify
+                </h3>
+
+                <p>
+                    AI extracts and checks certificate data.
+                </p>
+
+            </div>
+
+
+            <div class="flow-item">
+
+                <span>04</span>
+
+                <h3>
+                    Authenticate
+                </h3>
+
+                <p>
+                    QR and database verification confirm
+                    the credential.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+</div>
+
+
+<!-- =====================================================
+     FOOTER
+====================================================== -->
+
+<footer>
+
+    <p>
+        🤖 AI Digital Credential & Certificate
+        Verification System
+    </p>
+
+    <p>
+        © 2026 All Rights Reserved
+    </p>
+
+</footer>
+
+
+</body>
+</html>

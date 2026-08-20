@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AI Certificate Verification</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            color: white;
+
+            background:
+                radial-gradient(
+                    circle at 15% 15%,
+                    rgba(99,102,241,.22),
+                    transparent 32%
+                ),
+                radial-gradient(
+                    circle at 85% 80%,
+                    rgba(6,182,212,.18),
+                    transparent 32%
+                ),
+                #070b16;
+
+            overflow-x: hidden;
+        }
+
+
+        /* =========================
+           ANIMATED BACKGROUND
+        ========================= */
+
+        .orb {
+            position: fixed;
+
+            border-radius: 50%;
+
+            pointer-events: none;
+
+            filter: blur(3px);
+
+            opacity: .25;
+
+            z-index: 0;
+        }
+
+        .orb1 {
+            width: 180px;
+            height: 180px;
+
+            background: #6366f1;
+
+            top: 8%;
+            left: -80px;
+
+            animation:
+                float1 8s ease-in-out infinite;
+        }
+
+        .orb2 {
+            width: 150px;
+            height: 150px;
+
+            background: #06b6d4;
+
+            right: -70px;
+            bottom: 12%;
+
+            animation:
+                float2 10s ease-in-out infinite;
+        }
+
+        @keyframes float1 {
+
+            0%,100% {
+                transform: translate(0,0);
+            }
+
+            50% {
+                transform: translate(70px,50px);
+            }
+
+        }
+
+        @keyframes float2 {
+
+            0%,100% {
+                transform: translate(0,0);
+            }
+
+            50% {
+                transform: translate(-60px,-50px);
+            }
+
+        }
+
+
+        /* =========================
+           NAVBAR
+        ========================= */
+
+        nav {
+
+            position: relative;
+            z-index: 10;
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items: center;
+
+            padding:
+                17px 6%;
+
+            background:
+                rgba(7,11,22,.78);
+
+            backdrop-filter:
+                blur(18px);
+
+            border-bottom:
+                1px solid
+                rgba(255,255,255,.08);
+
+        }
+
+        .logo {
+
+            font-size: 20px;
+
+            font-weight: 800;
+
+        }
+
+        .logo span {
+
+            color: #818cf8;
+
+        }
+
+        nav a {
+
+            color: #cbd5e1;
+
+            text-decoration: none;
+
+            padding:
+                9px 14px;
+
+            border-radius: 10px;
+
+            transition: .25s;
+
+        }
+
+        nav a:hover {
+
+            background:
+                rgba(99,102,241,.16);
+
+            color: white;
+
+        }
+
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .container {
+
+            position: relative;
+
+            z-index: 2;
+
+            width: 90%;
+
+            max-width: 850px;
+
+            margin: auto;
+
+            padding:
+                55px 0 70px;
+
+        }
+
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .header {
+
+            text-align: center;
+
+            margin-bottom: 30px;
+
+            animation:
+                fadeDown .7s ease;
+
+        }
+
+        .robot {
+
+            width: 85px;
+            height: 85px;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            margin:
+                0 auto 20px;
+
+            border-radius: 25px;
+
+            font-size: 42px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(99,102,241,.25),
+                    rgba(6,182,212,.15)
+                );
+
+            border:
+                1px solid
+                rgba(129,140,248,.35);
+
+            box-shadow:
+                0 0 40px
+                rgba(99,102,241,.15);
+
+            animation:
+                robotFloat 3s ease-in-out infinite;
+
+        }
+
+        .header h1 {
+
+            margin:
+                0 0 10px;
+
+            font-size:
+                clamp(28px,5vw,42px);
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #ffffff,
+                    #a5b4fc,
+                    #67e8f9,
+                    #ffffff
+                );
+
+            background-size: 250%;
+
+            -webkit-background-clip:
+                text;
+
+            background-clip:
+                text;
+
+            color: transparent;
+
+            animation:
+                gradientMove 5s linear infinite;
+
+        }
+
+        .header p {
+
+            color: #94a3b8;
+
+            line-height: 1.6;
+
+        }
+
+
+        /* =========================
+           VERIFICATION CARD
+        ========================= */
+
+        .verify-card {
+
+            position: relative;
+
+            padding: 32px;
+
+            border-radius: 25px;
+
+            background:
+                rgba(15,23,42,.82);
+
+            border:
+                1px solid
+                rgba(129,140,248,.25);
+
+            box-shadow:
+                0 25px 70px
+                rgba(0,0,0,.3);
+
+            overflow: hidden;
+
+            animation:
+                fadeUp .8s ease;
+
+        }
+
+        .verify-card::before {
+
+            content: "";
+
+            position: absolute;
+
+            width: 220px;
+            height: 220px;
+
+            right: -100px;
+            top: -100px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(99,102,241,.12);
+
+            animation:
+                rotateGlow 8s linear infinite;
+
+        }
+
+
+        /* =========================
+           STEP INDICATOR
+        ========================= */
+
+        .steps {
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            gap: 12px;
+
+            margin-bottom: 30px;
+
+        }
+
+        .step {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            color: #64748b;
+
+            font-size: 13px;
+
+        }
+
+        .step.active {
+
+            color: #a5b4fc;
+
+        }
+
+        .step-number {
+
+            width: 27px;
+            height: 27px;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            border-radius: 50%;
+
+            background:
+                rgba(100,116,139,.15);
+
+            border:
+                1px solid
+                rgba(148,163,184,.2);
+
+        }
+
+        .step.active
+        .step-number {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #6366f1,
+                    #06b6d4
+                );
+
+            color: white;
+
+            border-color:
+                transparent;
+
+        }
+
+        .line {
+
+            width: 45px;
+
+            height: 1px;
+
+            background:
+                rgba(148,163,184,.2);
+
+        }
+
+
+        /* =========================
+           UPLOAD AREA
+        ========================= */
+
+        .upload-area {
+
+            position: relative;
+
+            z-index: 2;
+
+            min-height: 230px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: center;
+
+            align-items: center;
+
+            text-align: center;
+
+            padding: 25px;
+
+            border-radius: 20px;
+
+            border:
+                2px dashed
+                rgba(129,140,248,.35);
+
+            background:
+                rgba(99,102,241,.045);
+
+            transition: .3s ease;
+
+        }
+
+        .upload-area:hover {
+
+            border-color:
+                rgba(129,140,248,.8);
+
+            background:
+                rgba(99,102,241,.08);
+
+            transform:
+                translateY(-2px);
+
+        }
+
+        .upload-icon {
+
+            font-size: 48px;
+
+            margin-bottom: 12px;
+
+            animation:
+                uploadFloat 2.5s ease-in-out infinite;
+
+        }
+
+        .upload-title {
+
+            font-size: 18px;
+
+            font-weight: 700;
+
+            margin-bottom: 7px;
+
+        }
+
+        .upload-info {
+
+            color: #94a3b8;
+
+            font-size: 13px;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        /* =========================
+           FILE INPUT
+        ========================= */
+
+        .file-label {
+
+            display: inline-block;
+
+            padding:
+                11px 18px;
+
+            border-radius: 11px;
+
+            background:
+                rgba(99,102,241,.15);
+
+            border:
+                1px solid
+                rgba(129,140,248,.35);
+
+            color: #c7d2fe;
+
+            cursor: pointer;
+
+            font-weight: 700;
+
+            transition: .25s;
+
+        }
+
+        .file-label:hover {
+
+            background:
+                rgba(99,102,241,.25);
+
+            transform:
+                translateY(-2px);
+
+        }
+
+        #certificate {
+
+            display: none;
+
+        }
+
+        #fileName {
+
+            margin-top: 13px;
+
+            color: #67e8f9;
+
+            font-size: 13px;
+
+            max-width: 100%;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+
+        }
+
+
+        /* =========================
+           VERIFY BUTTON
+        ========================= */
+
+        .verify-btn {
+
+            width: 100%;
+
+            margin-top: 22px;
+
+            padding:
+                15px 20px;
+
+            border: none;
+
+            border-radius: 13px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #6366f1,
+                    #06b6d4
+                );
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: 800;
+
+            cursor: pointer;
+
+            transition: .3s;
+
+            box-shadow:
+                0 12px 35px
+                rgba(99,102,241,.18);
+
+        }
+
+        .verify-btn:hover {
+
+            transform:
+                translateY(-3px);
+
+            box-shadow:
+                0 18px 40px
+                rgba(99,102,241,.35);
+
+        }
+
+        .verify-btn:disabled {
+
+            opacity: .65;
+
+            cursor: wait;
+
+            transform: none;
+
+        }
+
+
+        /* =========================
+           INFO
+        ========================= */
+
+        .security-info {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3,1fr);
+
+            gap: 12px;
+
+            margin-top: 22px;
+
+        }
+
+        .info-card {
+
+            padding: 15px;
+
+            border-radius: 14px;
+
+            text-align: center;
+
+            background:
+                rgba(15,23,42,.65);
+
+            border:
+                1px solid
+                rgba(148,163,184,.1);
+
+        }
+
+        .info-card strong {
+
+            display: block;
+
+            margin-bottom: 5px;
+
+            font-size: 13px;
+
+        }
+
+        .info-card span {
+
+            color: #64748b;
+
+            font-size: 11px;
+
+        }
+
+
+        /* =========================
+           BACK
+        ========================= */
+
+        .back {
+
+            display: block;
+
+            text-align: center;
+
+            margin-top: 25px;
+
+            color: #94a3b8;
+
+            text-decoration: none;
+
+            transition: .25s;
+
+        }
+
+        .back:hover {
+
+            color: #a5b4fc;
+
+        }
+
+
+        /* =========================
+           ANIMATIONS
+        ========================= */
+
+        @keyframes fadeDown {
+
+            from {
+                opacity: 0;
+                transform:
+                    translateY(-25px);
+            }
+
+            to {
+                opacity: 1;
+                transform:
+                    translateY(0);
+            }
+
+        }
+
+        @keyframes fadeUp {
+
+            from {
+                opacity: 0;
+                transform:
+                    translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform:
+                    translateY(0);
+            }
+
+        }
+
+        @keyframes robotFloat {
+
+            0%,100% {
+                transform:
+                    translateY(0)
+                    rotate(0deg);
+            }
+
+            50% {
+                transform:
+                    translateY(-8px)
+                    rotate(2deg);
+            }
+
+        }
+
+        @keyframes uploadFloat {
+
+            0%,100% {
+                transform:
+                    translateY(0);
+            }
+
+            50% {
+                transform:
+                    translateY(-7px);
+            }
+
+        }
+
+        @keyframes gradientMove {
+
+            0% {
+                background-position: 0%;
+            }
+
+            100% {
+                background-position: 250%;
+            }
+
+        }
+
+        @keyframes rotateGlow {
+
+            from {
+                transform:
+                    rotate(0deg);
+            }
+
+            to {
+                transform:
+                    rotate(360deg);
+            }
+
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width:650px) {
+
+            nav {
+
+                padding:
+                    14px 5%;
+
+            }
+
+            nav a {
+
+                font-size: 13px;
+
+                padding:
+                    8px 10px;
+
+            }
+
+            .container {
+
+                width: 92%;
+
+                padding-top:
+                    35px;
+
+            }
+
+            .verify-card {
+
+                padding:
+                    20px;
+
+            }
+
+            .steps {
+
+                gap: 7px;
+
+            }
+
+            .step {
+
+                font-size: 11px;
+
+            }
+
+            .line {
+
+                width: 18px;
+
+            }
+
+            .security-info {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- Animated Background -->
+
+    <div class="orb orb1"></div>
+
+    <div class="orb orb2"></div>
+
+
+    <!-- NAVBAR -->
+
+    <nav>
+
+        <div class="logo">
+
+            🤖 AI
+            <span>Digital Credential</span>
+
+        </div>
+
+        <div>
+
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- MAIN -->
+
+    <div class="container">
+
+
+        <!-- HEADER -->
+
+        <div class="header">
+
+            <div class="robot">
+                🤖
+            </div>
+
+            <h1>
+                AI Certificate Verification
+            </h1>
+
+            <p>
+                Verify the authenticity of a certificate
+                using AI-powered analysis and QR validation.
+            </p>
+
+        </div>
+
+
+        <!-- CARD -->
+
+        <div class="verify-card">
+
+
+            <!-- STEPS -->
+
+            <div class="steps">
+
+                <div class="step active">
+
+                    <div class="step-number">
+                        1
+                    </div>
+
+                    Upload
+
+                </div>
+
+
+                <div class="line"></div>
+
+
+                <div class="step">
+
+                    <div class="step-number">
+                        2
+                    </div>
+
+                    AI Scan
+
+                </div>
+
+
+                <div class="line"></div>
+
+
+                <div class="step">
+
+                    <div class="step-number">
+                        3
+                    </div>
+
+                    Result
+
+                </div>
+
+            </div>
+
+
+            <!-- FORM -->
+
+            <form
+                action="{{ url_for('ai_verify') }}"
+                method="POST"
+                enctype="multipart/form-data"
+                id="verifyForm"
+            >
+
+
+                <!-- UPLOAD -->
+
+                <div class="upload-area">
+
+
+                    <div class="upload-icon">
+                        📄
+                    </div>
+
+
+                    <div class="upload-title">
+
+                        Select your certificate
+
+                    </div>
+
+
+                    <div class="upload-info">
+
+                        PDF, PNG, JPG or JPEG
+
+                    </div>
+
+
+                    <label
+                        for="certificate"
+                        class="file-label"
+                    >
+
+                        📁 Choose Certificate
+
+                    </label>
+
+
+                    <input
+                        type="file"
+                        id="certificate"
+                        name="certificate"
+                        accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+                        required
+                    >
+
+
+                    <div id="fileName">
+
+                        No file selected
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- BUTTON -->
+
+                <button
+                    type="submit"
+                    class="verify-btn"
+                    id="verifyBtn"
+                >
+
+                    🔍 Verify Certificate
+
+                </button>
+
+
+            </form>
+
+
+            <!-- SECURITY INFO -->
+
+            <div class="security-info">
+
+
+                <div class="info-card">
+
+                    <strong>
+                        🤖 AI Analysis
+                    </strong>
+
+                    <span>
+                        Certificate data check
+                    </span>
+
+                </div>
+
+
+                <div class="info-card">
+
+                    <strong>
+                        📱 QR Validation
+                    </strong>
+
+                    <span>
+                        Credential verification
+                    </span>
+
+                </div>
+
+
+                <div class="info-card">
+
+                    <strong>
+                        🔐 Secure
+                    </strong>
+
+                    <span>
+                        Verification history
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+        <a
+            href="{{ url_for('dashboard') }}"
+            class="back"
+        >
+
+            ← Back to Dashboard
+
+        </a>
+
+
+    </div>
+
+
+    <script>
+
+
+        /* =========================
+           FILE NAME
+        ========================= */
+
+        const fileInput =
+            document.getElementById(
+                "certificate"
+            );
+
+        const fileName =
+            document.getElementById(
+                "fileName"
+            );
+
+
+        fileInput.addEventListener(
+            "change",
+            function () {
+
+                if (
+                    this.files &&
+                    this.files.length > 0
+                ) {
+
+                    fileName.textContent =
+                        "✓ " +
+                        this.files[0].name;
+
+                }
+
+                else {
+
+                    fileName.textContent =
+                        "No file selected";
+
+                }
+
+            }
+        );
+
+
+        /* =========================
+           SUBMIT ANIMATION
+        ========================= */
+
+        const form =
+            document.getElementById(
+                "verifyForm"
+            );
+
+        const button =
+            document.getElementById(
+                "verifyBtn"
+            );
+
+
+        form.addEventListener(
+            "submit",
+            function () {
+
+                if (
+                    !fileInput.files.length
+                ) {
+
+                    return;
+
+                }
+
+
+                button.disabled = true;
+
+                button.innerHTML =
+                    "🤖 AI is analyzing certificate...";
+
+
+            }
+        );
+
+
+    </script>
+
+
+</body>
+
+</html>

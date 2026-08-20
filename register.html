@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Create Credential Account</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="login-card">
+
+        <div class="logo">
+            AI
+        </div>
+
+        <h1>Create Account</h1>
+
+        <p class="subtitle">
+            Create your digital credential profile
+        </p>
+
+        <form method="POST">
+
+            <input
+                type="text"
+                name="name"
+                placeholder="Full Name"
+                required
+            >
+
+            <input
+                type="email"
+                name="email"
+                placeholder="Email Address"
+                required
+            >
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required
+            >
+
+            <input
+                type="text"
+                name="certificate_type"
+                placeholder="Certificate Type"
+                required
+            >
+
+            <input
+                type="text"
+                name="certificate_title"
+                placeholder="Certificate Title"
+                required
+            >
+
+            <input
+                type="text"
+                name="organization"
+                placeholder="Issuing Organization"
+                required
+            >
+
+            <input
+                type="date"
+                name="issue_date"
+                required
+            >
+
+            <button type="submit">
+                Create Credential Account
+            </button>
+
+        </form>
+
+        <p class="subtitle">
+
+            Already have an account?
+
+            <a href="/"
+               style="color:#4facfe; text-decoration:none;">
+
+                Login
+
+            </a>
+
+        </p>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

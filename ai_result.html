@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AI Verification Result</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    {% if verified and user %}
+
+        <div class="verification-card success">
+
+            <h1>✓</h1>
+
+            <h2>CERTIFICATE VERIFIED</h2>
+
+            <p>
+                Credential authenticity confirmed
+            </p>
+
+            <hr>
+
+            <h3>Certificate Holder</h3>
+            <p>{{ user["name"] }}</p>
+
+            <h3>Certificate Type</h3>
+            <p>{{ user["certificate_type"] }}</p>
+
+            <h3>Certificate Title</h3>
+            <p>{{ user["certificate_title"] }}</p>
+
+            <h3>Issuing Organization</h3>
+            <p>{{ user["organization"] }}</p>
+
+            <h3>Issue Date</h3>
+            <p>{{ user["issue_date"] }}</p>
+
+            <h3>Credential ID</h3>
+            <p>{{ user["credential_id"] }}</p>
+
+            <div class="verified-box">
+                ✓ AUTHENTIC CREDENTIAL
+            </div>
+
+        </div>
+
+    {% else %}
+
+        <div class="verification-card failed">
+
+            <h1>✕</h1>
+
+            <h2>INVALID CREDENTIAL</h2>
+
+            <p>
+                This credential could not be found
+                in the verification database.
+            </p>
+
+            {% if credential_id %}
+
+                <hr>
+
+                <h3>Detected Credential ID</h3>
+
+                <p>
+                    {{ credential_id }}
+                </p>
+
+            {% endif %}
+
+            <div class="failed-box">
+                ✕ VERIFICATION FAILED
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <br>
+
+    <a href="{{ url_for('ai_verify') }}">
+        Verify Another Certificate
+    </a>
+
+</div>
+
+</body>
+</html>

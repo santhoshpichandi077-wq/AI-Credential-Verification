@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Certificate Uploads</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<nav class="navbar">
+    <div class="brand">
+        🛡️ AI <span>Digital Credential</span>
+    </div>
+
+    <div>
+        <a href="{{ url_for('admin_dashboard') }}">
+            Dashboard
+        </a>
+
+        <a href="{{ url_for('admin_history') }}">
+            History
+        </a>
+
+        <a href="{{ url_for('admin_logout') }}">
+            Logout
+        </a>
+    </div>
+</nav>
+
+
+<div class="container">
+
+    <div class="hero">
+
+        <h1>📁 Certificate Uploads</h1>
+
+        <p>
+            AI Digital Credential Verification System
+        </p>
+
+    </div>
+
+
+    <div class="admin-card">
+
+        <h2>📋 Uploaded Certificates</h2>
+
+        <br>
+
+
+        {% if uploads %}
+
+        <div style="overflow-x:auto;">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Student</th>
+                        <th>Email</th>
+                        <th>Credential ID</th>
+                        <th>File</th>
+                        <th>Uploaded At</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for item in uploads %}
+
+                    <tr>
+
+                        <td>
+                            {{ loop.index }}
+                        </td>
+
+                        <td>
+                            {{ item["name"] or "Unknown" }}
+                        </td>
+
+                        <td>
+                            {{ item["email"] or "Unknown" }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ item["credential_id"] }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            📄 {{ item["filename"] }}
+                        </td>
+
+                        <td>
+                            {{ item["uploaded_at"] }}
+                        </td>
+
+                        <td>
+
+                            <a class="btn"
+                               href="{{ url_for(
+                                   'view_original',
+                                   credential_id=item['credential_id']
+                               ) }}"
+                               target="_blank">
+
+                                👁 View
+
+                            </a>
+
+                            <br><br>
+
+                            <a class="btn"
+                               href="{{ url_for(
+                                   'download_original',
+                                   credential_id=item['credential_id']
+                               ) }}">
+
+                                ⬇ Download
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="verification-card"
+             style="text-align:center;">
+
+            <div class="card-icon"
+                 style="margin:0 auto 20px;">
+
+                📭
+
+            </div>
+
+            <h2>No Certificates Uploaded</h2>
+
+            <p style="color:#94a3b8; margin-top:10px;">
+
+                No certificate has been uploaded
+                for verification yet.
+
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <br>
+
+    <a class="btn"
+       href="{{ url_for('admin_dashboard') }}">
+
+        ← Back to Admin Dashboard
+
+    </a>
+
+</div>
+
+
+<footer>
+
+    AI Digital Credential &
+    Certificate Verification System
+
+</footer>
+
+</body>
+</html>
