@@ -262,10 +262,9 @@ def create_database():
 
 def generate_qr(credential_id):
 
-   BASE_URL = os.environ.get(
-    "BASE_URL",
-    "http://127.0.0.1:5000"
-)
+    verification_url = (
+        f"http://127.0.0.1:5000/verify/{credential_id}"
+    )
 
     qr = qrcode.make(
         verification_url
@@ -279,8 +278,6 @@ def generate_qr(credential_id):
     qr.save(qr_path)
 
     return qr_path
-
-
 # =========================================================
 # HOME
 # =========================================================
