@@ -256,19 +256,13 @@ def create_database():
     conn.close()
 
 
-# =========================================================
-# QR CODE
-# =========================================================
-
 def generate_qr(credential_id):
 
     verification_url = (
-        f"http://127.0.0.1:5000/verify/{credential_id}"
+        f"https://ai-credential-verification.onrender.com/verify/{credential_id}"
     )
 
-    qr = qrcode.make(
-        verification_url
-    )
+    qr = qrcode.make(verification_url)
 
     qr_path = os.path.join(
         QR_FOLDER,
